@@ -39,7 +39,7 @@ void setup() {
   pico_unique_board_id_t board_id;
   pico_get_unique_board_id(&board_id);
   Serial.print(F("Unique Chip / Flash ID: "));
-  for (int i =0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     if (board_id.id[i] < 0x10) { Serial.print('0'); }
     Serial.print(board_id.id[i], HEX);
     if (i < 7) { Serial.print(':'); }
@@ -68,8 +68,6 @@ void setup() {
     Serial.println(F("Big-Endian"));
   }
 
-
-
   pinMode(PIN_HRDY, INPUT_PULLUP);
   pinMode(PIN_RST, OUTPUT);
   digitalWrite(PIN_RST, HIGH);
@@ -84,20 +82,14 @@ void setup() {
   SPI.setTX(PIN_SPI_MOSI);
   SPI.begin();
 
-
-
   pinMode(LED_BUILTIN, OUTPUT);
 }
-
-
 
 void loop() {
   IT8951 it8951(&SPI, spi_settings, PIN_SPI_CS, PIN_HRDY, PIN_RST);
 
   it8951.reset();
   
-
-
   IT8951::DeviceInfo info = it8951.get_device_system_info();
 
   Serial.print(F("Panel Resolution: "));
@@ -114,16 +106,46 @@ void loop() {
   Serial.print(info.it8951_version);
   Serial.println();
 
-
-  // Enable packed mode
-  // NB Reading the register will not show the change
+  // Enable packed mode via the I80CPCR register
   it8951.write_register(0x0004, 1);
 
+/* FIXME STOPPED
+  // Set the image buffer address
+  it8951.write_register(0x0208, (uint16_t)(info.buffer_address & 0xffff));
+  it8951.write_register(0x020a, (uint16_t)(info.buffer_address >> 16));
+
+// FIXME
+// Enable power management / panel power
+//it8951.write_register(0x00FE, 0x0001);
+//delay(100); // Allow high-voltage rails to stabilize
 
 
-  it8951.load_image_4bpp(image_data, image_data_len, info.buffer_address);
+
+  Serial.println(F("Starting image load"));
+  uint32_t start = millis();
+  // FIXME it8951.load_image_4bpp(image_data, image_data_len, info.panel_width, info.panel_height);
+  //it8951.load_image_4bpp(test_pattern_raw, test_pattern_raw_len, info.panel_width, info.panel_height);
+  it8951.test_load_image_4bpp(info.panel_width, info.panel_height);
+  //it8951.test_load_image_16bit(info.panel_width, info.panel_height);
+  //it8951.test_fill_memory(0, 0, info.panel_width, info.panel_height, 0x000f);
+  //delay(100);
+  uint32_t delta = millis() - start;
+  Serial.print(F("Image load completed: "));
+  Serial.print(delta);
+  Serial.println(F(" ms"));
+
+// FIXME
+  it8951.write_register(0x0208, (uint16_t)(info.buffer_address & 0xffff));
+  it8951.write_register(0x020a, (uint16_t)(info.buffer_address >> 16));
 
 
+
+  // Mode 0: Initialize (clears ghosting, black/white flashes)
+  // Mode 1: Direct Update (fast, monochrome only, great for fast UI updates)
+  // Mode 2: 16 level grayscale clear/refresh (standard high-quality photo/image mode)
+  // Mode 3: 16 level grayscale without full clear cycle, minimal visual disruption
+  it8951.update_display(info.panel_width, info.panel_height, 0 /* FIXME 2 * /);
+*/
 
   while (1) {
     digitalWrite(LED_BUILTIN, HIGH);
