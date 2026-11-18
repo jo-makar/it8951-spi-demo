@@ -67,25 +67,20 @@ class IT8951 {
       spi->beginTransaction(spi_settings);
       digitalWrite(pin_spi_cs, LOW);
 
-      ready();
       uint16_t preamble = 0x6000; // Command
       spi->transfer(preamble >> 8);
       spi->transfer(preamble & 0xff);
 
-      ready();
       uint16_t command = 0x0302; // Get Device System Info
       spi->transfer(command >> 8);
       spi->transfer(command & 0xff);
 
       digitalWrite(pin_spi_cs, HIGH);
-      spi->endTransaction();
       delayMicroseconds(100);
 
       ready();
-      spi->beginTransaction(spi_settings);
       digitalWrite(pin_spi_cs, LOW);
 
-      ready();
       preamble = 0x1000; // Read
       spi->transfer(preamble >> 8);
       spi->transfer(preamble & 0xff);
@@ -122,6 +117,75 @@ class IT8951 {
       spi->endTransaction();
 
       return info;
+    }
+
+    uint16_t read_register(uint16_t address) {
+      ready();
+      spi->beginTransaction(spi_settings);
+      digitalWrite(pin_spi_cs, LOW);
+
+      uint16_t preamble = 0x6000; // Command
+      spi->transfer(preamble >> 8);
+      spi->transfer(preamble & 0xff);
+
+      uint16_t command = 0x0010; // Read Register
+      spi->transfer(command >> 8);
+      spi->transfer(command & 0xff);
+
+      spi->transfer(address >> 8);
+      spi->transfer(address & 0xff);
+
+      digitalWrite(pin_spi_cs, HIGH);
+      delayMicroseconds(100);
+
+      ready();
+      digitalWrite(pin_spi_cs, LOW);
+
+      preamble = 0x1000; // Read
+      spi->transfer(preamble >> 8);
+      spi->transfer(preamble & 0xff);
+
+      // Dummy word read
+      spi->transfer(0);
+      spi->transfer(0);
+
+      // Register read
+      uint8_t h = spi->transfer(0);
+      uint8_t l = spi->transfer(0);
+
+      digitalWrite(pin_spi_cs, HIGH);
+      spi->endTransaction();
+
+      return (h << 8) | l;
+    }
+
+    void write_register(uint16_t address, uint16_t value) {
+      ready();
+      spi->beginTransaction(spi_settings);
+      digitalWrite(pin_spi_cs, LOW);
+
+      uint16_t preamble = 0x6000; // Command
+      spi->transfer(preamble >> 8);
+      spi->transfer(preamble & 0xff);
+
+      uint16_t command = 0x0011; // Write Register
+      spi->transfer(command >> 8);
+      spi->transfer(command & 0xff);
+
+      spi->transfer(address >> 8);
+      spi->transfer(address & 0xff);
+
+      spi->transfer(value >> 8);
+      spi->transfer(value & 0xff);
+
+      digitalWrite(pin_spi_cs, HIGH);
+      spi->endTransaction();
+
+      delayMicroseconds(50);
+    }
+
+    void load_image_4bpp(const uint8_t *image_data, size_t image_data_len, uint32_t buffer_addr) {
+      // FIXME STOPPED
     }
 };
 

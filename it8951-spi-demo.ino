@@ -1,6 +1,10 @@
 // Waveshare RP2350B Plus W development board
-// connected to a E-Paper Display IT8951 controller via SPI
+// connected to a E-Paper Display IT8951 controller via SPI.
 
+// Note that the IT8951 supports a faster (via parallel pins) I80 interface
+// but the need is diminished with a high SPI clock as used in this demo.
+
+#include "image.h"
 #include "IT8951.h"
 
 #include <SPI.h>
@@ -85,11 +89,15 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
+
+
 void loop() {
   IT8951 it8951(&SPI, spi_settings, PIN_SPI_CS, PIN_HRDY, PIN_RST);
 
   it8951.reset();
   
+
+
   IT8951::DeviceInfo info = it8951.get_device_system_info();
 
   Serial.print(F("Panel Resolution: "));
@@ -105,6 +113,17 @@ void loop() {
   Serial.print(F("IT8951 Version: "));
   Serial.print(info.it8951_version);
   Serial.println();
+
+
+  // Enable packed mode
+  // NB Reading the register will not show the change
+  it8951.write_register(0x0004, 1);
+
+
+
+  it8951.load_image_4bpp(image_data, image_data_len, info.buffer_address);
+
+
 
   while (1) {
     digitalWrite(LED_BUILTIN, HIGH);
