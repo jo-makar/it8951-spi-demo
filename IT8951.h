@@ -46,7 +46,6 @@ class IT8951 {
       spi_transfer(c);
 
       digitalWrite(pin_spi_cs, HIGH);
-      delayMicroseconds(100); // FIXME Necessary?
     }
 
     uint16_t read() {
@@ -58,7 +57,6 @@ class IT8951 {
       uint16_t rv = spi_transfer(0);
 
       digitalWrite(pin_spi_cs, HIGH);
-      delayMicroseconds(100); // FIXME Necessary?
 
       return rv;
     }
@@ -75,7 +73,6 @@ class IT8951 {
       }
 
       digitalWrite(pin_spi_cs, HIGH);
-      delayMicroseconds(100); // FIXME Necessary?
     }
 
     void write(uint16_t v) {
@@ -86,7 +83,6 @@ class IT8951 {
       spi_transfer(v);
 
       digitalWrite(pin_spi_cs, HIGH);
-      delayMicroseconds(100);
     }
 
     void write_buf(uint16_t *buf, size_t n) {
@@ -100,7 +96,6 @@ class IT8951 {
       }
 
       digitalWrite(pin_spi_cs, HIGH);
-      delayMicroseconds(100); // FIXME Necessary?
     }
 
   public:
@@ -208,7 +203,6 @@ class IT8951 {
         }
 
         digitalWrite(pin_spi_cs, HIGH);
-        delayMicroseconds(100); // FIXME Necessary?
       }
 
       command(0x0022); // Load Image End
