@@ -1,11 +1,9 @@
-// Waveshare RP2350B Plus W development board
-// connected to a E-Paper Display IT8951 controller via SPI.
+// Waveshare RP2350B Plus W development board connected to a E-Paper Display IT8951 controller via SPI.
 //
-// When using the IT8951 HAT (Hardware Attached on Top), it must be powered directly.
-// Ie cannot be driven via the power from the Waveshare development board.
+// When using the IT8951 HAT (Hardware Attached on Top), it must be powered via VBUS (5V from the USB port)
+// from the Waveshare board otherwise the HAT will not have sufficient current to update the display.
 //
-// Note that the IT8951 supports a faster (via parallel pins) I80 interface
-// but the need is diminished with a high SPI clock as used in this demo.
+// The IT8951 supports a faster I80 interface but the need is diminished with a high SPI clock as used here.
 
 #include "image.h"
 #include "IT8951.h"
